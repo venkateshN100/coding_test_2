@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Data Sorting and Pagination</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+  <script src="model.js"></script>
+  <script src="controller.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+  var TableView = {
+    renderTable: function () {
+      var tbl = '<table id="myTable" class="table table-hover">';
+      tbl += "<thead><tr>";
+      tbl += TableView.getTableHeader("name", "Name");
+      tbl += TableView.getTableHeader("age", "Age");
+      tbl += TableView.getTableHeader("email", "Email");
+      tbl += "</tr></thead>";
+      tbl += "<tbody>";
+
+      var paginatedData = TableModel.sorted_data.slice(
+        (TableModel.currentPage - 1) * TableModel.itemsPerPage,
+        TableModel.currentPage * TableModel.itemsPerPage
+      );
+
+      $.each(paginatedData, function (index, val) {
+        tbl += "<tr>";
+        tbl += TableView.getTableCell(val["name"]);
+        tbl += TableView.getTableCell(val["age"]);
+        tbl += TableView.getTableCell(val["email"]);
+        tbl += "</tr>";
+      });
+
+      tbl += "</tbody></table>";
+
+      tbl += TableView.renderPaginationControls();
+
+      $(".tbl_user_data").html(tbl);
+
+      $('#myTable').DataTable({
+        "paging": false,
+        "searching": false,
+        "ordering": false,
+        "info": false,
+      });
+
+      updateUrlParameters();
+    },
+
+    getTableHeader: function (column, label) {
+      var header = '<th>';
+      header += '<a href="#" class="sort-btn" data-column="' + column + '"> ' + label + '</a>';
+      header += '</th>';
+      return header;
+    },
+
+    getTableCell: function (value) {
+      return '<td>' + value + '</td>';
+    },
+
+    renderPaginationControls: function () {
+      var totalPages = Math.ceil(TableModel.sorted_data.length / TableModel.itemsPerPage);
+      var pagination = '<div class="pagination">';
+      
+      for (var i = 1; i <= totalPages; i++) {
+        pagination += '<a href="#" class="page-link" data-page="' + i + '">' + i + '</a>';
+      }
+
+      pagination += '</div>';
+      return pagination;
+    },
+  };
+
+  $(document).ready(function () {
+    TableController.init();
+  });
+</script>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><b></b></div>
+  <div class="panel-body">
+    <div class="tbl_user_data"></div>
+  </div>
+</div>
+
+</body>
+</html>
